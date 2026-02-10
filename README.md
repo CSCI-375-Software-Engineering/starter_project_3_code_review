@@ -1,2 +1,2 @@
 # starter_project_3_code_review
-Updated
+This is a more detailed explanation.
