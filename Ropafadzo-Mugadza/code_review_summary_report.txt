@@ -1,0 +1,102 @@
+Code Review Summary Report – Ropafadzo Mugadza
+Overview
+
+The assignment for Project 3 involved creating a Boggle solver in Python. The main goals were to implement a class that can search a Boggle grid for valid words given a dictionary, handle edge cases such as empty grids, invalid word endings, and duplicate letters, and optimize performance using prefix pruning.
+
+My approach included:
+
+Implementing the Boggle class with a getSolution() method that returns a sorted list of valid words.
+
+Using depth-first search (DFS) with backtracking to explore all paths on the board while ensuring no cell is revisited within a single word.
+
+Precomputing prefixes from the dictionary to prune DFS paths that cannot yield valid words.
+
+Converting all words to lowercase internally and returning results in uppercase for testing consistency.
+
+Feedback I Received
+
+During the code review process, my partner provided the following key feedback:
+
+Code Clarity & Naming: Suggestions to use more descriptive variable names for readability, e.g., renaming current to current_word.
+
+Edge Cases: Recommendations to handle special letter sequences such as “Qu” and prevent invalid words ending in Q, S, or I.
+
+Refactoring DFS: Comments to simplify recursion and improve maintainability by separating concerns (e.g., checking prefixes vs. adding words to solutions).
+
+PEP8 Compliance: Feedback to fix inconsistent indentation, remove extra semicolons, and ensure proper spacing around operators.
+
+Test Coverage: Suggestions to expand unit tests to cover empty grids, 1x1 boards, and duplicate letters.
+
+Feedback I Gave
+
+I reviewed my partner’s code and provided constructive suggestions:
+
+Ensure DFS correctly prevents revisiting cells and handles looping paths.
+
+Precompute prefixes from the dictionary to optimize search, instead of checking full words at every DFS step.
+
+Implement checks for minimum word length (≥3) to avoid invalid results.
+
+Improve readability by using consistent naming conventions and adding comments explaining recursive logic.
+
+Use the Python unittest framework with clear expected outputs for each test case.
+
+Improvements Implemented
+
+Based on the feedback:
+
+Created Original Backup: Saved my original solver as boggle_solver.py.orig to preserve pre-refactor functionality.
+
+Refactored DFS: Improved readability, renamed variables for clarity, and ensured prefix pruning is applied before recursion.
+
+Edge Case Handling: Added logic to handle “Qu”, and prevent words ending in invalid letters (Q, S, I).
+
+Sorting & Return Consistency: Ensured getSolution() always returns a sorted list of uppercase words.
+
+Code Style Improvements: Fixed indentation, removed trailing semicolons, added blank lines where required, and adhered to PEP8 standards.
+
+Expanded Tests: Verified empty grid, single-cell grid, and duplicate letters are correctly handled.
+
+Static Analysis Results
+
+After running pycodestyle and the Codio linter, I resolved all style issues:
+
+Corrected line length violations (>79 characters)
+
+Fixed inconsistent indentation (4 spaces per level)
+
+Removed unnecessary semicolons
+
+Added missing blank lines before and after functions
+
+Removed trailing whitespace
+
+The final solver and test files now pass zero linting errors in Codio.
+
+Regression Testing
+
+To ensure correctness:
+
+Ran all unit tests locally using python3 -m unittest.
+
+Verified that previous test cases (3x3, 1x1, empty grid, Qu cases) passed successfully.
+
+Compared outputs of original vs. refactored solver to confirm no valid words were lost or incorrectly added.
+
+Submitted final solver to Codio auto-grader → passed all 26 test cases.
+
+Reflection
+
+This project reinforced the value of code reviews and professional workflows:
+
+Code Review Skills: Learned how to give and receive constructive feedback professionally.
+
+Version Control: Using Git to track pre-refactor and post-refactor versions is essential for collaboration and rollback.
+
+Static Analysis Importance: Linting ensures consistent code style and helps prevent subtle bugs.
+
+Testing Discipline: Comprehensive unit tests provide confidence that changes do not break functionality.
+
+Professional Mindset: Working in a simulated team environment taught me to assume goodwill, focus on readability, maintainability, and clear communication.
+
+Overall, I now appreciate the iterative process of developing, reviewing, refactoring, testing, and submitting code in a professional workflow.
