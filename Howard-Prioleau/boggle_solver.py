@@ -1,6 +1,7 @@
 # Burge's Solution - Boggle Solver using HashMap
 
 import re
+import pandas as pd
 
 class Boggle:
     def __init__(self, grid, dictionary):
@@ -9,7 +10,7 @@ class Boggle:
         self.solutions = []
 
 def main():
-    grid = [["T", "W", "Y", "R"], ["E", "N", "P", "H"],["G", "Z", "Qu", "R"],["O", "N", "T", "A"]]
+    grid = [["T", "W", "Y", "R"], ["iE", "N", "P", "H"],["G", "Z", "Qu", "R"],["O", "N", "T", "A"]]
     dictionary = ["art", "ego", "gent", "get", "net", "new", "newt", "prat", "pry", "qua", "quart", "quartz", "rat", "tar", "tarp", "ten", "went", "wet", "arty", "rhr", "not", "quar"]
     
     mygame = Boggle(grid, dictionary)
