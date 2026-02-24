@@ -18,24 +18,38 @@ class Boggle:
         self.setGrid(grid)
         self.setDictionary(dictionary)
 
+    #  feedback: incorporate checks for potental empty rows within the grid
     def getSolution(self):
-        # if the grid is empty
         if not self.grid:
             return []
-        # if the dictionary is empty
+
         if not self.dictionary:
             return []
+
+    # validate rows
+        for row in self.grid:
+            if not row or not all(cell for cell in row):
+                return []
         
         # formats the grid and dictionary 
+        #  feedback: also account for any empty rows and we could also check that each row has the right number of columns
         format_grid = self.format_grid(self.grid)
+
+        # Check if grid is empty after formatting
+        if not format_grid:
+            return []
+
         size = len(format_grid)
 
-        if any(len(row) != size for row in format_grid):
-            return []
+        # Validate rows: no empty rows + correct number of columns
+        for row in format_grid:
+            if not row or len(row) != size:
+                return []
 
         format_dictionary = self.format_dictionary(self.dictionary)
         if not format_dictionary:
             return []
+        
 
         prefix_sets = self.prefix_sets(format_dictionary)
         words_set, prefix_set = prefix_sets
@@ -52,13 +66,25 @@ class Boggle:
         return self.solutions
 
     # helper methods for formatting grid and dictionary
+    # needs to handle edge cases such as non-string entries and empty strings in the dictionary; include a check for non alphabetical characters
     @staticmethod
     def format_grid(grid):
-        return [[str(cell).strip().upper() for cell in row] for row in grid]
+        formatted = [
+            [str(cell).strip().upper() for cell in row if str(cell).strip().isalpha()]
+            for row in grid if row
+        ]
+        return formatted if all(formatted) else []
 
+    # feedback: same issue as format_grid, needs to handle edge cases such as non-string entries and empty strings in the dictionary; include a check for non alphabetical characters
     @staticmethod
     def format_dictionary(dictionary):
-        return {word.strip().upper() for word in dictionary if isinstance(word, str) and word.strip()}
+        return {
+            word.strip().upper()
+            for word in dictionary
+            if isinstance(word, str)
+            and word.strip()
+            and word.strip().isalpha()
+        }
 
     # helper method to create sets of words and prefixes
     def prefix_sets(self, words):
@@ -66,6 +92,7 @@ class Boggle:
         prefix_set = set()
         for word in words:
             words_set.add(word)
+            #double check the feedback for this
             for i in range(1, len(word) + 1):
                 prefix_set.add(word[:i])
         return words_set, prefix_set
@@ -88,26 +115,27 @@ class Boggle:
             solutions.add(next_word)
 
         # explores all neighboring cells
-        for ny, nx in self.neighboring_cells(y, x, len(grid)):
-            self.find_all_words(ny, nx, grid, words_set, prefix_set, next_word, visited, solutions)
+        for next_y, next_x in self.neighboring_cells(y, x, len(grid)):
+            self.find_all_words(next_y, next_x, grid, words_set, prefix_set, next_word, visited, solutions)
 
         visited[y][x] = False
 
     # helper method to calculate neighboring cells according to Boggle rules
+    # rename dy and dx to more descriptive names 
     @staticmethod
     def neighboring_cells(y, x, size):
         neighbors = []
         # loops through all possible directions
-        for dy in (-1, 0, 1):
-            for dx in (-1, 0, 1):
+        for delta_y in (-1, 0, 1):
+            for delta_x in (-1, 0, 1):
                 # skips the current cell
-                if dy == 0 and dx == 0:
+                if delta_y == 0 and delta_x == 0:
                     continue
                 # calculates new coordinates
-                ny, nx = y + dy, x + dx
+                next_y, next_x = y + delta_y, x + delta_x
                 # checks if the new coordinates are within bounds and handles edge cases
-                if 0 <= ny < size and 0 <= nx < size:
-                    neighbors.append((ny, nx))
+                if 0 <= next_y < size and 0 <= next_x < size:
+                    neighbors.append((next_y, next_x))
         return neighbors
 
 def main():
