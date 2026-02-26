@@ -4,6 +4,7 @@ SID: 004002448
 Boggle Solver Program
 """
 
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -96,9 +97,9 @@ class Boggle:
         if len(new_word) >= 3 and temp_node.is_word:
             found_words.add(new_word)
 
-        directions = [(-1,-1), (-1,0), (-1,1),
-                      (0,-1),          (0,1),
-                      (1,-1),  (1,0),  (1,1)]
+        directions = [(-1, -1), (-1, 0), (-1, 1),
+                      (0, -1),          (0, 1),
+                      (1, -1),  (1, 0),  (1, 1)]
 
         for dr, dc in directions:
             self._dfs(row + dr, col + dc, temp_node,
