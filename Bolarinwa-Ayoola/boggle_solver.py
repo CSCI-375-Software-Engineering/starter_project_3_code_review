@@ -1,8 +1,29 @@
 """
-Name: Dami Ayoola
+Name: Bolarinwa Ayoola
 SID: 004002448
 Boggle Solver Program
 """
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+
+
+class Trie:
+    def __init__(self, words):
+        self.root = TrieNode()
+        for word in words:
+            self.insert(word.upper())
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_word = True
+
 
 class Boggle:
     """
@@ -10,11 +31,6 @@ class Boggle:
     """
 
     def __init__(self, grid, dictionary):
-        """
-        constructor
-        stores grid and dictionary
-        automatically solves board
-        """
         self.grid = grid
         self.dictionary = dictionary
         self.solutions = []
@@ -22,35 +38,19 @@ class Boggle:
         self._solve()
 
     def setGrid(self, grid):
-        """
-        updates the grid
-        forces re-solve
-        """
         self.grid = grid
         self._solved = False
 
     def setDictionary(self, dictionary):
-        """
-        updates dictionary
-        forces re-solve
-        """
         self.dictionary = dictionary
         self._solved = False
 
     def getSolution(self):
-        """
-        returns list of found words
-        """
         if not self._solved:
             self._solve()
         return self.solutions
 
     def _solve(self):
-        """
-        main solver function
-        builds prefix set
-        runs dfs from each cell
-        """
         self.solutions = []
         self._solved = True
 
@@ -62,39 +62,17 @@ class Boggle:
 
         rows = len(self.grid)
 
-        """
-        normalize dictionary to uppercase
-        """
-        dict_set = set(word.upper() for word in self.dictionary)
-
+        trie = Trie(self.dictionary)
         found_words = set()
 
-        """
-        build prefix set for pruning
-        """
-        prefix_set = set()
-        for word in dict_set:
-            for i in range(1, len(word) + 1):
-                prefix_set.add(word[:i])
-
-        """
-        start dfs from each cell
-        """
         for i in range(rows):
             for j in range(len(self.grid[i])):
-                visited = []
-                for r in range(rows):
-                    visited.append([False] * len(self.grid[r]))
+                visited = [[False] * len(self.grid[r]) for r in range(rows)]
+                self._dfs(i, j, trie.root, "", visited, found_words, trie)
 
-                self._dfs(i, j, "", visited, dict_set, prefix_set, found_words)
+        self.solutions = sorted(found_words)
 
-        self.solutions = sorted(list(found_words))
-
-    def _dfs(self, row, col, current_word, visited, dict_set, prefix_set, found_words):
-        """
-        depth first search with backtracking
-        """
-
+    def _dfs(self, row, col, node, current_word, visited, found_words, trie):
         if row < 0 or row >= len(self.grid):
             return
 
@@ -104,35 +82,32 @@ class Boggle:
         if visited[row][col]:
             return
 
-        current_word += self.grid[row][col].upper()
+        tile = self.grid[row][col].upper()
 
-        """
-        stop if not valid prefix
-        """
-        if current_word not in prefix_set:
-            return
+        temp_node = node
+        for char in tile:
+            if char not in temp_node.children:
+                return
+            temp_node = temp_node.children[char]
 
         visited[row][col] = True
+        new_word = current_word + tile
 
-        if len(current_word) >= 3 and current_word in dict_set:
-            found_words.add(current_word)
+        if len(new_word) >= 3 and temp_node.is_word:
+            found_words.add(new_word)
 
         directions = [(-1,-1), (-1,0), (-1,1),
                       (0,-1),          (0,1),
                       (1,-1),  (1,0),  (1,1)]
 
         for dr, dc in directions:
-            self._dfs(row + dr, col + dc, current_word,
-                      visited, dict_set, prefix_set, found_words)
+            self._dfs(row + dr, col + dc, temp_node,
+                      new_word, visited, found_words, trie)
 
         visited[row][col] = False
 
 
 def main():
-    """
-    test driver
-    """
-
     grid = [["A", "B", "C", "D"],
             ["E", "F", "G", "H"],
             ["IE", "J", "K", "L"],
