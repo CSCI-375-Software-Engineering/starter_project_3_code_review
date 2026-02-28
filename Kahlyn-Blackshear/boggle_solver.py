@@ -6,12 +6,6 @@ class Boggle:
     self.grid = grid
     self.dictionary = dictionary
     self.solutions = set()
-  
-  def setGrid(self, grid):
-    self.grid = grid
-
-  def setDictionary(self, dictionary):
-    self.dictionary = dictionary
 
 
   def dict_hash(self):
