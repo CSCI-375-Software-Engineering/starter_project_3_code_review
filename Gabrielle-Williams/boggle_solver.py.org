@@ -9,7 +9,7 @@ class Boggle:
         self.rows = 0
         self.cols = 0
         
-    def set_grid(self,grid):
+    def setGrid(self,grid):
 
       self.new_grid = []
       if not grid or not grid[0]:
@@ -36,14 +36,11 @@ class Boggle:
       pass
     
   
-    def set_dictionary(self,dictionary):
+    def setDictionary(self,dictionary):
       self.dict_hash = {}
-      if not dictionary:
+      if dictionary == []:
+
         return False
-
-      self.dict_hash= {"": 0}
-      self.max_word_len = max(len(word) for word in dictionary)
-
       for word in dictionary:
         if not word.isalpha():
           return False
@@ -57,27 +54,18 @@ class Boggle:
             self.dict_hash[prefix] = 0
         self.dict_hash[word_upper] = 1
       return True
+    
+      pass
       
     
-    def boggle_dfs(self, r, c, word, visited):
+    def Boggle_dfs(self, r, c, word, visited):
       if r < 0 or r >= self.rows or c < 0 or c >= self.cols or visited[r][c]:
         return
-
-      if visited[r][c]:
+      word += self.new_grid[r][c]
+      if word not in self.dict_hash:
         return
-
-      tile = self.new_grid[r][c]
-      new_word = word + tile
-
-      if len(new_word) > self.max_word_len:
-        return
-
-      if new_word not in self.dict_hash:
-        return
-
-      if self.dict_hash.get(new_word) == 1 and len(new_word) >= 3:
-        self.solution_set.add(new_word)
-
+      if self.dict_hash.get(word) == 1 and len(word) >= 3:
+        self.solution_set.add(word)
       visited[r][c] = True
       #going through each neighbor
       for row in range(-1,2):
@@ -86,20 +74,20 @@ class Boggle:
             continue
           new_row = r + row
           new_col = c +col
-          self.boggle_dfs(new_row,new_col,new_word,visited)
+          self.Boggle_dfs(new_row,new_col,word,visited)
       #unmark cells so that they can be revisited later
       visited[r][c] = False   
     pass
     
-    def get_solution(self):
+    def getSolution(self):
       #clears results
       self.solutions = []
       self.solution_set = set()
       #checks validity of grid and dictionary
-      check_grid = self.set_grid(self.grid)
+      check_grid = self.setGrid(self.grid)
       if check_grid == False:
         return []
-      check_dict = self.set_dictionary(self.dictionary)
+      check_dict = self.setDictionary(self.dictionary)
       if check_dict == False:
         return []
       for r in range(self.rows):
@@ -111,7 +99,7 @@ class Boggle:
             for j in range(self.cols):
               new_row.append(False)
             visited.append(new_row)
-          self.boggle_dfs(r,c,"",visited)
+          self.Boggle_dfs(r,c,"",visited)
       #convert set to list
       for word in self.solution_set:
         self.solutions.append(word)
@@ -123,6 +111,6 @@ def main():
     grid = [["T", "W", "Y", "R"], ["E", "N", "P", "H"],["G", "Z", "Qu", "R"],["O", "N", "T", "A"]]
     dictionary = ["art", "ego", "gent", "get", "net", "new", "newt", "prat", "pry", "qua", "quart", "quartz", "rat", "tar", "tarp", "ten", "went", "wet", "arty", "rhr", "not", "quar"]
     mygame = Boggle(grid, dictionary)
-    print(mygame.get_solution())
+    print(mygame.getSolution())
 if __name__ == "__main__":
     main()
