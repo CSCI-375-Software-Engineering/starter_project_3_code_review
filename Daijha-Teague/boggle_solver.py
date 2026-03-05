@@ -56,7 +56,6 @@ class Boggle:
             if x.lower() == "q" or x.lower() == "s" or x.lower() == "i":
               return []
           
-          print(":)")
 
         # makes every element lowercase
           self.grid[idx][jdx] = x.lower()
@@ -65,7 +64,6 @@ class Boggle:
 
 # DICTIONARY VALIDATION
       
-      print("2")
 
       # check that dictionary is a list  
       if not isinstance(self.dictionary, list):
