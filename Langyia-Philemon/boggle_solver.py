@@ -3,7 +3,10 @@ Name: Langyia Philemon
 SID: 004002416
 '''
 
+
 class Boggle:
+
+
   # constructor: set up the grid, dictionary and helper sets
   def __init__(self, grid, dictionary):
     self.grid = grid  # NxN Boggle board
@@ -24,7 +27,8 @@ class Boggle:
     return word_set, prefix_set
   def setDictionary(self, dictionary):
     self.dictionary = dictionary
-    self.word_set, self.prefix_set = self._build_sets(dictionary)
+    (self.word_set, 
+    self.prefix_set) = self._build_sets(dictionary)
     # main function to find all words
   def getSolution(self):
     self.solution = []
@@ -54,12 +58,13 @@ class Boggle:
     if len(new_word) >= 3 and new_word in self.word_set:
       found.add(new_word)
     visited[r][c] = True
-    DIRECTIONS = [(-1,-1), (-1,0), (-1,1),
-                  (0,-1),         (0,1),
-                  (1,-1),  (1,0), (1,1)]
+    DIRECTIONS = [(-1, -1), (-1, 0), (-1, 1),
+                  (0, -1),         (0, 1),
+                  (1, -1), (1, 0), (1, 1)]
     for dr, dc in DIRECTIONS:
       self._dfs(r + dr, c + dc, new_word, visited, found, rows, cols)
     visited[r][c] = False
+
 
 def main():
   grid = [["T", "W", "Y", "R"],
