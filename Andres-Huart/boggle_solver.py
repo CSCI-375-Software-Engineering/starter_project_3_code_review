@@ -1,65 +1,70 @@
 class Boggle:
+    MIN_WORD_LENGTH = 3
+
     def __init__(self, grid=None, dictionary=None):
         '''
         Initializes the Boggle game with a board and a list of words.
         '''
-        self.grid = grid if grid else []
-        self.dictionary = dictionary if dictionary else []
-        self.solution = []
-        self.n = 0
+        self.grid = []
+        self.rows = 0
+        self.cols = 0
+        self._fast_dictionary = set()
+        self._prefix_set = set()
+        
+        if grid:
+            self.set_grid(grid)
+        if dictionary:
+            self.set_dictionary(dictionary)
 
-    def setGrid(self, grid):
+    def set_grid(self, grid):
         '''
         Updates the game board with a new 2D array.
         '''
-        self.grid = grid
+        if not grid or not grid[0]:
+            self.grid = []
+            self.rows = 0
+            self.cols = 0
+            return
 
-    def setDictionary(self, dictionary):
+        self.grid = [[str(cell).upper().strip() for cell in row] for row in grid]
+        self.rows = len(self.grid)
+        self.cols = len(self.grid[0])
+
+    def set_dictionary(self, dictionary):
         '''
         Updates the list of valid words for the game.
         '''
-        self.dictionary = dictionary
+        self._fast_dictionary = set()
+        self._prefix_set = set()
 
-    def getSolution(self):
+        for word in dictionary:
+            clean_word = str(word).upper().strip()
+            if len(clean_word) >= self.MIN_WORD_LENGTH:
+                self._fast_dictionary.add(clean_word)
+                # Build prefixes: Q, QU, QUA, QUAR...
+                for i in range(1, len(clean_word) + 1):
+                    self._prefix_set.add(clean_word[:i])
+
+    def get_solution(self):
         '''
         Main logic: Validates input, cleans data, and starts the word search.
         '''
-        if not self.dictionary or not self.grid:
+        if not self._fast_dictionary or not self.grid:
             return []
-        
-        self.n = len(self.grid)
-        if self.n <= 0: 
-            return []
-        for row in self.grid:
-            if len(row) != self.n:
-                return []
 
-        fast_dictionary = set()
-        prefix_set = set()
-
-        for word in self.dictionary:
-            clean_word = str(word).upper().strip()
-            if len(clean_word) >= 3:
-                fast_dictionary.add(clean_word)
-                # Build prefixes: Q, QU, QUA, QUAR...
-                for i in range(1, len(clean_word) + 1):
-                    prefix_set.add(clean_word[:i])
-        
-        upper_grid = [[str(cell).upper().strip() for cell in row] for row in self.grid]
         solution_set = set()
 
-        for y in range(self.n):
-            for x in range(self.n):
-                self._find_all_words(y, x, "", upper_grid, prefix_set, fast_dictionary, set(), solution_set)
+        for y in range(self.rows):
+            for x in range(self.cols):
+                self._find_all_words(y, x, "", set(), solution_set)
 
-        self.solution = sorted(list(solution_set))
-        return self.solution
+        return sorted(list(solution_set))
 
-    def _find_all_words(self, y, x, current_word, grid, prefix_set, fast_dict, visited, solution_set):
-        if (y < 0 or y >= self.n or x < 0 or x >= self.n or (y, x) in visited):
+    def _find_all_words(self, y, x, current_word, visited, solution_set):
+        if (y < 0 or y >= self.rows or x < 0 or x >= self.cols or (y, x) in visited):
             return
 
-        tile = grid[y][x]
+        tile = self.grid[y][x]
         
         # Robust "QU" handling: 
         # If tile is "Q", treat it as "QU". If it's already "QU", use "QU".
@@ -71,19 +76,19 @@ class Boggle:
         new_word = current_word + added_word
 
         # Pruning Logic
-        if new_word not in prefix_set:
+        if new_word not in self._prefix_set:
             return
 
         visited.add((y, x))
         
-        if new_word in fast_dict:
+        if new_word in self._fast_dictionary:
             solution_set.add(new_word)
 
         for dy in [-1, 0, 1]:
             for dx in [-1, 0, 1]:
                 if dy == 0 and dx == 0:
                     continue
-                self._find_all_words(y + dy, x + dx, new_word, grid, prefix_set, fast_dict, visited, solution_set)
+                self._find_all_words(y + dy, x + dx, new_word, visited, solution_set)
 
         visited.remove((y, x))
 
@@ -92,7 +97,7 @@ def main():
     dictionary = ["art", "ego", "gent", "get", "net", "new", "newt", "prat", "pry", "qua", "quart", "quartz", "rat", "tar", "tarp", "ten", "went", "wet", "arty", "rhr", "not", "quar"]
   
     mygame = Boggle(grid, dictionary)
-    print(mygame.getSolution())
+    print(mygame.get_solution())
 
 if __name__ == "__main__":
     main()
