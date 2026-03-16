@@ -1,5 +1,5 @@
-"""Fatmata Kanu"""
-"""004001377"""
+#Fatmata Kanu
+#004001377
 
 
 class Boggle:
@@ -32,6 +32,10 @@ class Boggle:
             return []
 
         num = len(self.grid)  # size of the board
+
+        for row in self.grid:
+            if len(row) == 0:
+                return []
 
         board = []  # making letters on the board lowercase
         for i in range(num):
