@@ -1,11 +1,18 @@
 Project Overview and Initial Approach
+
 The primary objective of this project was to design a Python class capable of identifying all valid words from a dictionary within a character grid. My initial strategy focused on implementing a Depth-First Search (DFS) algorithm with backtracking. This allowed the solver to explore all eight potential directions from a given tile—horizontal, vertical, and diagonal—while maintaining a "visited" matrix to ensure each tile was used only once per word. While my original script was functionally sound, it was primarily a "happy path" implementation that didn't fully account for the edge cases of Boggle or the strictness of professional style guides.
+
 The Peer Review Exchange
+
 The transition from a working prototype to a more a better application was driven by a peer review session with my partner. The feedback I received was incredibly helpful for identifying my "developer blind spots." My partner pointed out that my setter methods lacked defensive programming; they didn't check for empty or null inputs, which could cause the program to crash during runtime. Furthermore, they highlighted that I had missed a core Boggle rule: the special handling of "Qu" and "St" tiles. They also questioned why I was assigning the final word list to a class attribute (self.solution) right before returning it, suggesting it was unnecessary "dead data" that cluttered the class state.
 In return, I analyzed my partner’s code and identified several areas for improvement. I noticed their method naming was inconsistent, so I recommended standardizing their interface with more descriptive names like is_valid_grid. I also spotted a performance issue where they were running two separate loops through the dictionary to check for empty strings and valid types. I suggested combining these into a single pass to optimize the script. Finally, I flagged an unused solution set in their code that wasn't being utilized, advising them to remove it to keep their memory usage lean.
+
 Improvements and Static Analysis
+
 Taking the feedback into account, I refactored the code to move beyond basic functionality. To address the "Qu" and "St" rules, I implemented a normalization step in the set_grid method. I created a mapping that automatically converts "Q" to "QU" and "S" to "ST," ensuring the game stays true to its traditional rules regardless of user input. I also added explicit validation guards to handle empty grids or dictionaries gracefully.
 Beyond logic changes, I performed a thorough static analysis pass to align the script with PEP 8 standards. It involved a complete overhaul of my naming conventions from camelCase to snake_case. I also focused on the "scannability" of the code by adjusting vertical spacing between methods and breaking up long logical blocks in the DFS function. These changes significantly reduced the cognitive load required to read the script, making the logic much more transparent.
+
 Regression Testing and Reflection
+
 To verify that these improvements didn't introduce new bugs, I conducted a series of regression tests. I tested the solver using standard 4×4 boards, as well as edge cases like empty inputs and mixed-case dictionaries. I paid special attention to the "Qu" and "St" tiles to ensure the DFS correctly "jumped" the character index when moving through those multi-letter cells. All tests passed, confirming that the refactored code was both more robust and more accurate.
 This assignment was a great lesson in the importance of the professional coding workflow. It taught me that a piece of software isn't truly finished just because it passes a basic test case.
