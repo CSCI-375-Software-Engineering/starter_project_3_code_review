@@ -3,54 +3,53 @@ Name: Abigail Aboah
 SID: XXXXXXXX
 """
 
+
 class Boggle:
+    """
+    A class to solve a Boggle board given a specific grid and dictionary.
+    """
+
     def __init__(self, grid=None, dictionary=None):
         """
-        Initializes the Boggle game with a grid and a dictionary.
+        Initializes the Boggle game.
         """
-        self.setGrid(grid)
-        self.setDictionary(dictionary)
+        self.grid = []
+        self.dictionary = []
+        
+        if grid:
+            self.set_grid(grid)
+        if dictionary:
+            self.set_dictionary(dictionary)
 
-    def setGrid(self, grid):
+    def set_grid(self, grid):
         """
-        Sets the grid and performs validation.
-        Converts 'Q' to 'QU' and 'S' to 'ST' per Boggle rules.
+        Validates and normalizes the grid. Converts 'Q' to 'QU' 
+        and 'S' to 'ST' per standard Boggle rules.
         """
-        # Check if the grid is empty or None
         if not grid or not any(grid):
             self.grid = []
             return
 
-        # Normalize the grid: ensure 'Q' -> 'QU' and 'S' -> 'ST'
-        # and convert all to uppercase for consistency.
-        normalized_grid = []
-        for row in grid:
-            new_row = []
-            for cell in row:
-                cell_upper = cell.upper()
-                if cell_upper == "Q":
-                    new_row.append("QU")
-                elif cell_upper == "S":
-                    new_row.append("ST")
-                else:
-                    new_row.append(cell_upper)
-            normalized_grid.append(new_row)
-        
-        self.grid = normalized_grid
+        # Use a mapping for special Boggle rules to improve readability
+        special_rules = {"Q": "QU", "S": "ST"}
 
-    def setDictionary(self, dictionary):
+        self.grid = [
+            [special_rules.get(cell.upper(), cell.upper()) for cell in row]
+            for row in grid
+        ]
+
+    def set_dictionary(self, dictionary):
         """
-        Sets the dictionary and checks if it is empty.
+        Normalizes the dictionary to uppercase for consistent matching.
         """
         if not dictionary:
             self.dictionary = []
         else:
-            # Store dictionary in uppercase for easier comparison
             self.dictionary = [word.upper() for word in dictionary]
 
-    def getSolution(self):
+    def get_solution(self):
         """
-        Finds all valid words from the dictionary present in the grid.
+        Returns a list of valid words found in the grid.
         """
         if not self.grid or not self.dictionary:
             return []
@@ -59,18 +58,16 @@ class Boggle:
         cols = len(self.grid[0])
         found_words = []
 
-        # Iterate through the dictionary to check each word's existence in the grid
         for word in self.dictionary:
-            # Words must be at least 3 characters long per standard rules
+            # Only process words that meet the minimum length requirement
             if len(word) >= 3 and self._exists(word, rows, cols):
                 found_words.append(word)
 
-        # Removed redundant self.solution assignment as per reviewer suggestion
         return found_words
 
     def _exists(self, word, rows, cols):
         """
-        Starts a DFS search for a word from every cell in the grid.
+        Iterates through the grid to find a starting point for the word.
         """
         visited = [[False for _ in range(cols)] for _ in range(rows)]
 
@@ -82,45 +79,44 @@ class Boggle:
 
     def _dfs(self, r, c, word, index, visited):
         """
-        Recursive Depth First Search to find the word path in the grid.
-        Handles multi-character cells (like QU or ST).
+        Recursive search to match the word characters against the grid.
         """
-        # Base Case: Entire word has been found
         if index == len(word):
             return True
 
-        # Boundary and visited checks
-        if r < 0 or c < 0 or r >= len(self.grid) or c >= len(self.grid[0]) or visited[r][c]:
+        # Check bounds and if cell is already used in current path
+        if (r < 0 or r >= len(self.grid) or 
+                c < 0 or c >= len(self.grid[0]) or 
+                visited[r][c]):
             return False
 
-        cell = self.grid[r][c]
+        current_cell = self.grid[r][c]
 
-        # Check if the current cell matches the current part of the word
-        if not word.startswith(cell, index):
+        # Early exit if the current cell doesn't match the word segment
+        if not word.startswith(current_cell, index):
             return False
 
-        # Mark cell as visited
         visited[r][c] = True
-        
-        # Advance index by the length of the cell (handles 1 or 2 character cells)
-        next_index = index + len(cell)
+        next_index = index + len(current_cell)
 
-        # Explore all 8 adjacent directions
+        # Explore all 8 neighbors (including diagonals)
         for dr in [-1, 0, 1]:
             for dc in [-1, 0, 1]:
-                if dr != 0 or dc != 0:
-                    if self._dfs(r + dr, c + dc, word, next_index, visited):
-                        # Backtrack before returning True
-                        visited[r][c] = False
-                        return True
+                if dr == 0 and dc == 0:
+                    continue
+                
+                if self._dfs(r + dr, c + dc, word, next_index, visited):
+                    visited[r][c] = False  # Backtrack
+                    return True
 
-        # Backtrack: unmark cell for other search paths
-        visited[r][c] = False
+        visited[r][c] = False  # Backtrack
         return False
 
 
 def main():
-    # Example grid with mixed cases and special rules
+    """
+    Entry point for the Boggle solver script.
+    """
     grid = [
         ["T", "W", "Y", "R"],
         ["E", "N", "P", "H"],
@@ -135,7 +131,7 @@ def main():
     ]
 
     game = Boggle(grid, dictionary)
-    print("Found words:", game.getSolution())
+    print(f"Found words: {game.get_solution()}")
 
 
 if __name__ == "__main__":
