@@ -1,12 +1,18 @@
-class Boggle:
+"""
+Boggle Solver Implementation
 
+This program solves a Boggle board by finding all valid words that can be
+formed from a given NxN grid of letters using standard Boggle rules.
+"""
+
+
+class Boggle:
     """
-Boggle game solver class.
+    Boggle game solver class.
 
     This class handles the logic for solving a Boggle board. Given a 2D grid
     of letters and a dictionary, it finds all valid words that can be formed
     by moving to adjacent tiles without reusing letters.
-
     """
 
     def __init__(self, grid, dictionary):
@@ -14,9 +20,8 @@ Boggle game solver class.
         Initialize the Boggle solver.
 
         Args:
-             grid: 2D list of letters on the board
-             dictionary: List of words to search for
-
+            grid: 2D list of letters on the board
+            dictionary: List of words to search for
         """
         self.grid = None
         self.dictionary = None
@@ -34,7 +39,7 @@ Boggle game solver class.
         Set and validate the game grid.
 
         Args:
-            grid: grid: 2D list of letters on the board
+            grid: 2D list of letters on the board
         """
         if not self._validateGrid(grid):
             self.grid = None
@@ -53,8 +58,7 @@ Boggle game solver class.
             self.dictionary = None
             return
 
-        # Store words in uppercase set for fast lookup.
-
+        # Convert all words to uppercase and store them in a set for faster lookup
         self.dictionary = set(word.upper() for word in dictionary)
 
         # Build a prefix set for pruning - this dramatically speeds up DFS
@@ -92,9 +96,6 @@ Boggle game solver class.
             True if valid, False otherwise
         """
         if not grid or not isinstance(grid, list):
-            return False
-
-        if len(grid) == 0:
             return False
 
         # Check that all rows have the same length
@@ -152,7 +153,7 @@ Boggle game solver class.
 
     def _getNeighbors(self, row, col, rows, cols):
         """
-        Return all neighboring cell positions (including diagonals).
+        Get all valid neighbor positions for a given cell (including diagonals).
 
         Args:
             row: Current row position
@@ -181,7 +182,7 @@ Boggle game solver class.
 
     def _dfs(self, row, col, current_word, visited, rows, cols):
         """
-      DFS to find valid words from a given cell.
+        Perform depth-first search to find all valid words starting from a position.
 
         Args:
             row: Current row position
@@ -195,7 +196,7 @@ Boggle game solver class.
         tile = self._expandTile(self.grid[row][col])
         new_word = current_word + tile
 
-        # If this prefix doesn't exist in any dictionary word, stop
+        # CRITICAL OPTIMIZATION: If this prefix doesn't exist in any dictionary word, stop
         if new_word not in self.prefixes:
             return
 
@@ -242,12 +243,10 @@ def main():
     """
     Main function to demonstrate the Boggle solver.
     """
-    grid = [
-        ["A", "B", "C", "D"],
-        ["E", "F", "G", "H"],
-        ["IE", "J", "K", "L"],
-        ["A", "B", "C", "D"],
-    ]
+    grid = [["A", "B", "C", "D"],
+            ["E", "F", "G", "H"],
+            ["IE", "J", "K", "L"],
+            ["A", "B", "C", "D"]]
 
     dictionary = ["ABEF", "AFJIEEB", "DGKD", "DGKA"]
 
