@@ -1,0 +1,118 @@
+# Boggle Solver
+import re
+
+# Name: Ezichi Chimezie
+#ID: 004004796
+class Boggle:
+    def __init__(self, grid, dictionary):
+        self.grid = grid
+        self.dictionary = dictionary
+        self.solutions = set()
+        self.trieRoot = {}
+
+    def setGrid(self, grid):
+      self.grid = grid
+
+    def setDictionary(self, dictionary):
+      self.dictionary = dictionary
+
+    def buildTrie(self):
+      self.trieRoot = {}
+
+      for word in self.dictionary:
+        currentNode = self.trieRoot
+
+        for char in word:
+          char = char.lower()
+          if char not in currentNode:
+            currentNode[char] = {}
+          currentNode = currentNode[char]
+
+        currentNode['_end_']= True
+
+    def searchFromCell(self, row, col, visited, currentWord, trieNode):
+      #invalid position check
+      if row < 0 or col < 0 or row >= len(self.grid) or col >= len(self.grid):
+        return
+
+      if visited[row][col] == True:
+        return
+
+      #prefix validation
+      currentNode = trieNode
+      for i in self.grid[row][col]:
+        i = i.lower()
+        if i not in currentNode:
+          return
+        currentNode = currentNode[i]
+      
+      visited[row][col] = True
+      currentWord += self.grid[row][col].lower()
+
+      if '_end_' in currentNode and len(currentWord) >= 3:
+        self.solutions.add(currentWord)
+
+      self.searchFromCell(row-1, col-1, visited, currentWord, currentNode)
+      self.searchFromCell(row-1, col, visited, currentWord, currentNode)
+      self.searchFromCell(row-1, col+1, visited, currentWord, currentNode)
+      self.searchFromCell(row, col-1, visited, currentWord, currentNode)
+      self.searchFromCell(row, col+1, visited, currentWord, currentNode)
+      self.searchFromCell(row+1, col-1, visited, currentWord, currentNode)
+      self.searchFromCell(row+1, col, visited, currentWord, currentNode)
+      self.searchFromCell(row+1, col+1, visited, currentWord, currentNode)
+      
+      visited[row][col] = False
+      return
+
+    def getSolution(self):
+      #validate grid
+      if not isinstance(self.grid, list):
+        return []
+      if len(self.grid) == 0:
+        return []
+      for i in  self.grid:
+        if len(i) != len(self.grid):
+          return []
+
+      #validate dictionary
+      if not isinstance(self.dictionary, list):
+        return []
+      if len(self.dictionary) == 0:
+        return []
+
+      #clear previos solutions
+      self.solutions.clear()
+
+      #build trie
+      self.buildTrie()
+
+      #create visited matrix:
+      visited = []
+      for i in range(len(self.grid)):
+        row = []
+        for j in range(len(self.grid)):
+          row.append(False)
+        visited.append(row)
+        
+      #loop over each cell
+      for row in range(len(self.grid)):
+        for col in range(len(self.grid)):
+          currentWord = ""
+          self.searchFromCell(row,col,visited,currentWord, self.trieRoot)
+
+      return list(self.solutions)
+
+        
+        
+
+
+
+def main():
+    grid = [["T", "W", "Y", "R"], ["E", "N", "P", "H"],["G", "Z", "Qu", "R"],["O", "N", "T", "A"]]
+    dictionary = ["art", "ego", "gent", "get", "net", "new", "newt", "prat", "pry", "qua", "quart", "quartz", "rat", "tar", "tarp", "ten", "went", "wet", "arty", "rhr", "not", "quar"]
+    
+    mygame = Boggle(grid, dictionary)
+    print(mygame.getSolution())
+
+if __name__ == "__main__":
+    main()
