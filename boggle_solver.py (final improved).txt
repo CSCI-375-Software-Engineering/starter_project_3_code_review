@@ -1,0 +1,194 @@
+""" 
+NAME: Geehan Altayb
+SID: 03133581
+
+Boggle Solver Implementation
+
+This module implements a solver for the Boggle word-finding game
+using Depth-First Search (DFS) with prefix pruning for efficiency.
+"""
+
+from typing import Optional, List
+
+
+class Boggle:
+    """
+    A class to solve Boggle puzzles.
+
+    The Boggle game involves finding words in an NxN grid of letters where:
+    - Words must use adjacent tiles (including diagonals)
+    - Each tile can only be used once per word
+    - Words must be at least 3 letters long
+    - Special tiles: "Qu", "St", "Ie" count as 2 letters each
+    """
+
+    MIN_WORD_LENGTH = 3
+    SPECIAL_TILES = {"QU", "ST", "IE"}
+
+    def __init__(self, grid: Optional[List[List[str]]],
+                 dictionary: Optional[List[str]]):
+        """
+        Initialize the Boggle solver with a grid and dictionary.
+
+        Args:
+            grid: 2D array of strings representing the letter grid
+            dictionary: List of valid words to search for
+        """
+        self.grid: Optional[List[List[str]]] = None
+        self.dictionary: Optional[set] = None
+        self.solution_set = set()
+        self.prefixes = set()
+
+        self.setGrid(grid)
+        self.setDictionary(dictionary)
+
+        # Automatically solve if valid
+        if self.grid is not None and self.dictionary is not None:
+            self._solve()
+
+    def setGrid(self, grid):
+        """Set and validate the grid."""
+        if not self._validate_grid(grid):
+            self.grid = None
+            return
+
+        # Normalize grid using list comprehension
+        self.grid = [[cell.upper() for cell in row] for row in grid]
+
+    def setDictionary(self, dictionary):
+        """Set and validate the dictionary."""
+        if not self._validate_dictionary(dictionary):
+            self.dictionary = None
+            return
+
+        # Normalize dictionary using set comprehension
+        self.dictionary = {
+            word.upper()
+            for word in dictionary
+            if isinstance(word, str) and word.strip() != ""
+        }
+
+    def getSolution(self):
+        """
+        Returns a sorted list of valid words found in the grid.
+        """
+        if self.grid is None or self.dictionary is None:
+            return []
+
+        return sorted(self.solution_set)
+
+    def _validate_grid(self, grid):
+        """Validate grid structure."""
+        if not grid or not isinstance(grid, list):
+            return False
+
+        row_length = len(grid[0])
+
+        return all(
+            isinstance(row, list) and len(row) == row_length and
+            all(isinstance(cell, str) for cell in row)
+            for row in grid
+        )
+
+    def _validate_dictionary(self, dictionary):
+        """Validate dictionary structure."""
+        if not isinstance(dictionary, list):
+            return False
+
+        return all(isinstance(word, str) for word in dictionary)
+
+    def _solve(self):
+        """Solve the Boggle puzzle using DFS."""
+        if not self.grid or not self.dictionary:
+            return
+
+        rows = len(self.grid)
+        cols = len(self.grid[0])
+
+        # Build prefix set
+        for word in self.dictionary:
+            for i in range(1, len(word) + 1):
+                self.prefixes.add(word[:i])
+
+        # Start DFS from every position
+        for i in range(rows):
+            for j in range(cols):
+                visited = [[False] * cols for _ in range(rows)]
+                self._dfs(i, j, "", visited)
+
+    def _dfs(self, row, col, current_word, visited):
+        """Depth-first search from a position."""
+
+        rows = len(self.grid)
+        cols = len(self.grid[0])
+
+        # Bounds check
+        if row < 0 or row >= rows or col < 0 or col >= cols:
+            return
+
+        if visited[row][col]:
+            return
+
+        new_word = current_word + self.grid[row][col]
+
+        # Prefix pruning
+        if new_word not in self.prefixes:
+            return
+
+        visited[row][col] = True
+
+        # Word check
+        if (
+            self._get_word_length(new_word) >= self.MIN_WORD_LENGTH
+            and new_word in self.dictionary
+        ):
+            self.solution_set.add(new_word)
+
+        # Directions defined once locally
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1),           (0, 1),
+            (1, -1),  (1, 0),  (1, 1),
+        ]
+
+        for dr, dc in directions:
+            self._dfs(row + dr, col + dc, new_word, visited)
+
+        # Backtrack
+        visited[row][col] = False
+
+    def _get_word_length(self, word):
+        """
+        Calculate actual word length accounting for special tiles.
+        """
+        length = 0
+        i = 0
+
+        while i < len(word):
+            if i + 1 < len(word) and word[i:i+2] in self.SPECIAL_TILES:
+                length += 2
+                i += 2
+            else:
+                length += 1
+                i += 1
+
+        return length
+
+
+def main():
+    """Example usage."""
+    grid = [
+        ["A", "B", "C", "D"],
+        ["E", "F", "G", "H"],
+        ["IE", "J", "K", "L"],
+        ["A", "B", "C", "D"],
+    ]
+
+    dictionary = ["ABEF", "AFJIEEB", "DGKD", "DGKA"]
+
+    game = Boggle(grid, dictionary)
+    print(game.getSolution())
+
+
+if __name__ == "__main__":
+    main()
